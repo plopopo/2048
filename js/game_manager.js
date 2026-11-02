@@ -1,17 +1,39 @@
 function GameManager(size, InputManager, Actuator, StorageManager) {
-  this.size           = size; // Size of the grid
   this.inputManager   = new InputManager;
   this.storageManager = new StorageManager;
   this.actuator       = new Actuator;
+
+  this.size = this.storageManager.getBoardSize() || size;
+  if (!this.isValidSize(this.size)) this.size = 4;
+  this.storageManager.setSize(this.size);
+  this.storageManager.setBoardSize(this.size);
 
   this.startTiles     = 2;
 
   this.inputManager.on("move", this.move.bind(this));
   this.inputManager.on("restart", this.restart.bind(this));
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
+  this.inputManager.on("changeSize", this.changeSize.bind(this));
 
   this.setup();
 }
+
+GameManager.prototype.isValidSize = function (size) {
+  return typeof size === "number" && size >= 4 && size <= 8 &&
+         size === Math.floor(size);
+};
+
+// Resume the selected mode, keeping each board's progress separate.
+GameManager.prototype.changeSize = function (size) {
+  size = Number(size);
+  if (!this.isValidSize(size) || size === this.size) return;
+
+  this.size = size;
+  this.storageManager.setSize(size);
+  this.storageManager.setBoardSize(size);
+  this.actuator.continueGame();
+  this.setup();
+};
 
 // Restart the game
 GameManager.prototype.restart = function () {
@@ -24,6 +46,7 @@ GameManager.prototype.restart = function () {
 GameManager.prototype.keepPlaying = function () {
   this.keepPlaying = true;
   this.actuator.continueGame(); // Clear the game won/lost message
+  this.actuate();
 };
 
 // Return true if the game is lost, or has won and the user hasn't kept playing
@@ -36,8 +59,9 @@ GameManager.prototype.setup = function () {
   var previousState = this.storageManager.getGameState();
 
   // Reload the game from a previous game if present
-  if (previousState) {
-    this.grid        = new Grid(previousState.grid.size,
+  if (previousState && previousState.grid &&
+      previousState.grid.size === this.size) {
+    this.grid        = new Grid(this.size,
                                 previousState.grid.cells); // Reload grid
     this.score       = previousState.score;
     this.over        = previousState.over;

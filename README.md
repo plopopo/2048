@@ -3,6 +3,10 @@ A small clone of [1024](https://play.google.com/store/apps/details?id=com.veewo.
 
 Made just for fun. [Play it here!](http://gabrielecirulli.github.io/2048/)
 
+This version includes 4×4, 5×5, 6×6, 7×7, and 8×8 boards. Use the **Board size** selector to switch modes. Each size keeps its own saved game and best score, and **New Game** restarts only the selected mode. The goal remains 2048 in every mode.
+
+Open `index.html` in a browser to play locally. Run the game logic regression tests with `node --test tests/game_modes.test.js` (Node.js 18 or later).
+
 The official app can also be found on the [Play Store](https://play.google.com/store/apps/details?id=com.gabrielecirulli.app2048) and [App Store!](https://itunes.apple.com/us/app/2048-by-gabriele-cirulli/id868076805)
 
 ### Contributions

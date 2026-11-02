@@ -19,12 +19,28 @@ window.fakeStorage = {
 };
 
 function LocalStorageManager() {
-  this.bestScoreKey     = "bestScore";
-  this.gameStateKey     = "gameState";
+  this.boardSizeKey = "boardSize";
+  this.setSize(4);
 
   var supported = this.localStorageSupported();
   this.storage = supported ? window.localStorage : window.fakeStorage;
 }
+
+// Keep the original storage keys for existing classic games.
+LocalStorageManager.prototype.setSize = function (size) {
+  var suffix = size === 4 ? "" : "-" + size;
+  this.bestScoreKey = "bestScore" + suffix;
+  this.gameStateKey = "gameState" + suffix;
+};
+
+LocalStorageManager.prototype.getBoardSize = function () {
+  var size = Number(this.storage.getItem(this.boardSizeKey));
+  return size >= 4 && size <= 8 && size === Math.floor(size) ? size : null;
+};
+
+LocalStorageManager.prototype.setBoardSize = function (size) {
+  this.storage.setItem(this.boardSizeKey, size);
+};
 
 LocalStorageManager.prototype.localStorageSupported = function () {
   var testKey = "test";
@@ -51,7 +67,11 @@ LocalStorageManager.prototype.setBestScore = function (score) {
 // Game state getters/setters and clearing
 LocalStorageManager.prototype.getGameState = function () {
   var stateJSON = this.storage.getItem(this.gameStateKey);
-  return stateJSON ? JSON.parse(stateJSON) : null;
+  try {
+    return stateJSON ? JSON.parse(stateJSON) : null;
+  } catch (error) {
+    return null;
+  }
 };
 
 LocalStorageManager.prototype.setGameState = function (gameState) {

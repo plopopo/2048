@@ -3,8 +3,6 @@
 
 $field-width: 500px;
 $grid-spacing: 15px;
-$grid-row-cells: 4;
-$tile-size: ($field-width - $grid-spacing * ($grid-row-cells + 1)) / $grid-row-cells;
 $tile-border-radius: 3px;
 
 $mobile-threshold: $field-width + 20px;
@@ -168,11 +166,17 @@ hr {
 }
 
 // Game field mixin used to render CSS at different width
-@mixin game-field {
+@mixin game-field($field-width, $grid-spacing, $gap-step, $margin-top) {
   .game-container {
-    margin-top: $game-container-margin-top;
+    --grid-size: 4;
+    --field-width: #{$field-width};
+    --grid-gap: calc(#{$grid-spacing} - (var(--grid-size) - 4) * #{$gap-step});
+    --tile-size: calc((var(--field-width) - var(--grid-gap) * (var(--grid-size) + 1)) / var(--grid-size));
+    --tile-step: calc(var(--tile-size) + var(--grid-gap));
+
+    margin-top: $margin-top;
     position: relative;
-    padding: $grid-spacing;
+    padding: var(--grid-gap);
 
     cursor: default;
     -webkit-touch-callout: none;
@@ -255,7 +259,7 @@ hr {
   }
 
   .grid-row {
-    margin-bottom: $grid-spacing;
+    margin-bottom: var(--grid-gap);
 
     &:last-child {
       margin-bottom: 0;
@@ -269,9 +273,9 @@ hr {
   }
 
   .grid-cell {
-    width: $tile-size;
-    height: $tile-size;
-    margin-right: $grid-spacing;
+    width: var(--tile-size);
+    height: var(--tile-size);
+    margin-right: var(--grid-gap);
     float: left;
 
     border-radius: $tile-border-radius;
@@ -290,29 +294,20 @@ hr {
 
   .tile {
     &, .tile-inner {
-      width: ceil($tile-size);
-      height: ceil($tile-size);
-      line-height: ceil($tile-size);
-    }
-
-    // Build position classes
-    @for $x from 1 through $grid-row-cells {
-      @for $y from 1 through $grid-row-cells {
-        &.tile-position-#{$x}-#{$y} {
-          $xPos: floor(($tile-size + $grid-spacing) * ($x - 1));
-          $yPos: floor(($tile-size + $grid-spacing) * ($y - 1));
-          @include transform(translate($xPos, $yPos));
-        }
-      }
+      width: var(--tile-size);
+      height: var(--tile-size);
+      line-height: var(--tile-size);
     }
   }
 }
 
 // End of game-field mixin
-@include game-field;
+@include game-field($field-width, $grid-spacing, 2px, 20px);
 
 .tile {
   position: absolute; // Makes transforms relative to the top-left corner
+  @include transform(translate(calc(var(--tile-step) * var(--tile-x)),
+                               calc(var(--tile-step) * var(--tile-y))));
 
   .tile-inner {
     border-radius: $tile-border-radius;
@@ -322,7 +317,7 @@ hr {
     font-weight: bold;
     z-index: 10;
 
-    font-size: 55px;
+    font-size: calc(var(--tile-size) * .52);
   }
 
   // Movement transition
@@ -383,18 +378,9 @@ hr {
 
       // Adjust font size for bigger numbers
       @if $power >= 100 and $power < 1000 {
-        font-size: 45px;
-
-        // Media queries placed here to avoid carrying over the rest of the logic
-        @include smaller($mobile-threshold) {
-          font-size: 25px;
-        }
+        font-size: calc(var(--tile-size) * .42);
       } @else if $power >= 1000 {
-        font-size: 35px;
-
-        @include smaller($mobile-threshold) {
-          font-size: 15px;
-        }
+        font-size: calc(var(--tile-size) * .32);
       }
     }
 
@@ -406,11 +392,7 @@ hr {
     color: $bright-text-color;
     background: mix(#333, $tile-gold-color, 95%);
 
-    font-size: 30px;
-
-    @include smaller($mobile-threshold) {
-      font-size: 10px;
-    }
+    font-size: calc(var(--tile-size) * .28);
   }
 }
 
@@ -468,6 +450,36 @@ hr {
   float: right;
 }
 
+.game-options {
+  margin-top: 20px;
+
+  label {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+
+  select {
+    padding: 8px 12px;
+    border: 2px solid $game-container-background;
+    border-radius: $tile-border-radius;
+    background: $bright-text-color;
+    color: $text-color;
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid $text-color;
+      outline-offset: 3px;
+    }
+  }
+
+  p {
+    margin: 8px 0 0;
+    font-size: 14px;
+  }
+}
+
 .game-explanation {
   margin-top: 50px;
 }
@@ -476,10 +488,6 @@ hr {
   // Redefine variables for smaller screens
   $field-width: 280px;
   $grid-spacing: 10px;
-  $grid-row-cells: 4;
-  $tile-size: ($field-width - $grid-spacing * ($grid-row-cells + 1)) / $grid-row-cells;
-  $tile-border-radius: 3px;
-  $game-container-margin-top: 17px;
 
   html, body {
     font-size: 15px;
@@ -527,12 +535,7 @@ hr {
   }
 
   // Render the game field at the right width
-  @include game-field;
-
-  // Rest of the font-size adjustments in the tile class
-  .tile .tile-inner {
-    font-size: 35px;
-  }
+  @include game-field($field-width, $grid-spacing, 1.5px, 17px);
 
   .game-message {
     p {

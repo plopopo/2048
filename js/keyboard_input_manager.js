@@ -51,6 +51,11 @@ KeyboardInputManager.prototype.listen = function () {
 
   // Respond to direction keys
   document.addEventListener("keydown", function (event) {
+    // Let form controls handle their own keys (including the size selector).
+    var target = event.target;
+    if (target && (target.isContentEditable ||
+        /^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(target.tagName))) return;
+
     var modifiers = event.altKey || event.ctrlKey || event.metaKey ||
                     event.shiftKey;
     var mapped    = map[event.which];
@@ -72,6 +77,11 @@ KeyboardInputManager.prototype.listen = function () {
   this.bindButtonPress(".retry-button", this.restart);
   this.bindButtonPress(".restart-button", this.restart);
   this.bindButtonPress(".keep-playing-button", this.keepPlaying);
+
+  var sizeSelector = document.querySelector("#board-size");
+  sizeSelector.addEventListener("change", function () {
+    self.emit("changeSize", Number(this.value));
+  });
 
   // Respond to swipe events
   var touchStartClientX, touchStartClientY;

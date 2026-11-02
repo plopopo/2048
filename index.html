@@ -31,6 +31,18 @@
       <a class="restart-button">New Game</a>
     </div>
 
+    <div class="game-options">
+      <label for="board-size">Board size</label>
+      <select id="board-size" aria-describedby="mode-help">
+        <option value="4">4 &times; 4</option>
+        <option value="5">5 &times; 5</option>
+        <option value="6">6 &times; 6</option>
+        <option value="7">7 &times; 7</option>
+        <option value="8">8 &times; 8</option>
+      </select>
+      <p id="mode-help">Each size has its own saved game and best score.</p>
+    </div>
+
     <div class="game-container">
       <div class="game-message">
         <p></p>
@@ -40,32 +52,7 @@
         </div>
       </div>
 
-      <div class="grid-container">
-        <div class="grid-row">
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-        </div>
-        <div class="grid-row">
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-        </div>
-        <div class="grid-row">
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-        </div>
-        <div class="grid-row">
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-          <div class="grid-cell"></div>
-        </div>
-      </div>
+      <div class="grid-container" aria-hidden="true"></div>
 
       <div class="tile-container">
 
